@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.items
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,11 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.sharedfolder.ui.theme.SharedFolderTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -41,11 +36,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Column() {
+                    Column {
                         Button(onClick = { openDocument() }) {
                             Text("open")
                         }
-                        showList(model = model)
+                        ShowList(model = model)
                     }
                 }
             }
@@ -88,7 +83,6 @@ fun listTree(documentsTree: DocumentFile, model: FilesViewModel, intent: String 
     if (documentsTree.isDirectory) {
         val childDocuments = documentsTree.listFiles()
         childDocuments.forEach { file ->
-            Log.i("File", "${file.name} ${file.isDirectory}")
             file.name?.let { model.addFile(intent + it) }
             if (file.isDirectory) {
                 listTree(file, model, "$intent\t>")
@@ -107,9 +101,8 @@ class FilesViewModel : ViewModel() {
 }
 
 @Composable
-fun showList(model: FilesViewModel) {
+fun ShowList(model: FilesViewModel) {
     val value: List<String>? by model.filesList.observeAsState(null)
-    val lee: String by model.files.observeAsState("")
     Column {
         LazyColumn {
             value?.let {
